@@ -204,6 +204,17 @@ class RedisStore extends TaggableStore implements LockProvider
      */
     public function forget($key)
     {
+        try{
+            $client = new \Predis\Client([
+                'host' => env('REDIS_HOST', '127.0.0.1'),
+                'port' => env('REDIS_PORT', 6379),
+                'database' => env('REDIS_DATABASE', 1),
+                'password' => env('REDIS_PASSWORD', null),
+            ]);
+            return (bool) $client->del($this->prefix.$key);
+        }catch (\Exception $ex) {
+        error_log("\n".'例外log: '.$ex,3,'/var/www/sle_pacific_live/backend/storage/logs/redisForget.txt');
+        }
         return (bool) $this->connection()->del($this->prefix.$key);
     }
 
